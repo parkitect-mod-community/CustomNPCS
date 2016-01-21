@@ -64,6 +64,8 @@
     <Compile Include="CustomGuest.cs" />
     <Compile Include="BehaviorInjector.cs" />
     <Compile Include="CustomWandering.cs" />
+    <Compile Include="WanderAction.cs" />
+    <Compile Include="DepthFirstSearch.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>

@@ -17,12 +17,6 @@ namespace HelloMod
 		}
 
 
-
-		void Awake()
-		{
-
-		}
-
 		public override string ToString ()
 		{
 			string output = "";
@@ -31,13 +25,7 @@ namespace HelloMod
 			}
 			return output;
 		}
-
-		public void Initialize()
-		{
-
-		}
-
-
+			
 
 		private void GetBehaviours()
 		{

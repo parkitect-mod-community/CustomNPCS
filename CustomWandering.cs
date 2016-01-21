@@ -1,9 +1,11 @@
 ﻿using System;
+using BehaviourTree;
 
 namespace HelloMod
 {
 	public class CustomWandering : RoamingBehaviour
 	{
+
 		public CustomWandering ()
 		{
 		}
@@ -14,7 +16,13 @@ namespace HelloMod
 		protected override BehaviourTree.Node setupTree ()
 		{
 			
-			return base.setupTree ();
+			return new Loop(new Node[]
+				{
+					new DecideNextWalkToBlockAction("block"),
+					new TurnBlockIntoWalkToPositionAction("block", "position"),
+					new WalkToPositionAction("position", false),
+					new TriggerLongTermPlanAction()
+				});
 		}
 
 		public override void Update ()
