@@ -13,10 +13,9 @@ namespace HelloMod
 
 				Prefabs prefab = Prefabs.Guest;
 
-				var guestPrefab = this.spawnCustomPerson(prefab).gameObject;
-				DestroyImmediate (guestPrefab.GetComponent<Guest> ());
-			
-				var guest = guestPrefab.AddComponent<CustomGuest> ();
+				var guest = this.spawnCustomPerson(prefab);
+				guest.gameObject.AddComponent<BehaviorInjector> ();
+
 				if (guest != null)
 				{
 					if (UnityEngine.Random.Range(0, 100) <= 5)
@@ -57,7 +56,7 @@ namespace HelloMod
 
             style.fontSize = 100;
 
-            GUI.Label(new Rect(50, 50, 400, 200), "Hello mods!", style);
+            GUI.Label(new Rect(50, 50, 400, 200), "Hello mods1!", style);
         }
     }
 }
