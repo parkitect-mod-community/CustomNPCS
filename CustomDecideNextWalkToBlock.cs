@@ -49,22 +49,6 @@ namespace HelloMod
 			}
 
 			BlockNeighbour[] connected = this._person.currentBlock.getConnected();
-			/*if (_person is Guest && ((Guest)_person).visitingState == Guest.VisitingState.IN_PARK) {
-	
-				
-				if (UnityEngine.Random.value < .5f) {
-
-					for (int i = 0; i < connected.Length; i++) {
-						if (connected [i] != null) {
-							if (this._person.canWanderOnto (connected [i].block)) {
-						
-							}
-						}
-					}
-
-				}
-			}*/
-
 			float reward = 0.0f;
 			Block QLearningBlock = null;
 
@@ -78,17 +62,7 @@ namespace HelloMod
 					flag = true;
 
 
-				} else {
-				
-					int xb = Mathf.FloorToInt (connected[i].block.transform.transform.position.x);
-					int yb = Mathf.RoundToInt (connected[i].block.transform.transform.position.y);
-					int zb = Mathf.FloorToInt (connected[i].block.transform.transform.position.z);
-					var node = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, xb, yb, zb);
-					if ( node.value > reward) {
-						QLearningBlock = connected[i].block;
-						reward = node.value;
-					}
-				}
+				} 
 
 			
 
@@ -105,6 +79,8 @@ namespace HelloMod
 					{
 						block2 = block3;
 					}
+
+	
 				}
 				else if (block3 is Path && this.canStepOntoPathWithoutThinking((Path)block3))
 				{
@@ -117,11 +93,17 @@ namespace HelloMod
 					{
 						this.possibleNormalBlocks[num] = block3;
 						num++;
-
-
 					}
 
+					int xb = Mathf.FloorToInt (block3.transform.position.x);
+					int yb = Mathf.RoundToInt (block3.transform.position.y);
+					int zb = Mathf.FloorToInt (block3.transform.position.z);
+					var node = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, xb, yb, zb);
+					if ( node.value > reward) {
+						QLearningBlock = block3;
+						reward = node.value;
 
+					}
 
 				}
 				else
@@ -156,24 +138,27 @@ namespace HelloMod
 				num = num3;
 				block = block2;
 			}
+
 			if (num2 > 0) {
 				block = this.possibleInterestingBlocks [UnityEngine.Random.Range (0, num2)];
 				dataContext.set (this._reward, 1f);
 
-			} else {
-				if (num == 1) {
-					block = this.possibleNormalBlocks [0];
-				}
-				else if (QLearningBlock != null && _person is Guest && ((Guest)_person).visitingState == Guest.VisitingState.IN_PARK && UnityEngine.Random.value <= .6f) {
-					UnityEngine.Debug.Log ("Decided to step on block because of potential reward:" + reward);
-					dataContext.set (this._outblock, QLearningBlock);
-					dataContext.set (this._reward, 0.0f);
-					return Node.Result.SUCCESS;
-				} else {
-					block = this.possibleNormalBlocks [UnityEngine.Random.Range (0, num)];
+			}  
+			else if (QLearningBlock != null && ((Guest)_person).visitingState == Guest.VisitingState.IN_PARK && UnityEngine.Random.value <= .6f) {
+				//UnityEngine.Debug.Log ("Decided to step on block because of potential reward:" + reward);
+				dataContext.set (this._reward, 0.0f);
+				block = QLearningBlock;
 
-				}
 			}
+			else if (num > 1)
+			{
+				block = this.possibleNormalBlocks[UnityEngine.Random.Range(0, num)];
+			}
+			 else if (num == 1) {
+				block = this.possibleNormalBlocks [UnityEngine.Random.Range (0, num)];
+
+			}
+				
 
 
 			if (block == null) {
@@ -184,8 +169,6 @@ namespace HelloMod
 					block = this._person.previousBlock;
 				}
 			}
-				
-	
 
 			
 			dataContext.set(this._outblock, block);
