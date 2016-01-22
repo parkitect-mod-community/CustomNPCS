@@ -66,6 +66,11 @@
     <Compile Include="CustomWandering.cs" />
     <Compile Include="DepthFirstSearch.cs" />
     <Compile Include="RandomPath.cs" />
+    <Compile Include="QLearning.cs" />
+    <Compile Include="QLearningCache.cs" />
+    <Compile Include="QlearningDebugger.cs" />
+    <Compile Include="CustomDecideNextWalkToBlock.cs" />
+    <Compile Include="CalculateFutureReward.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>

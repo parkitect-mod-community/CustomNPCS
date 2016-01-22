@@ -4,7 +4,7 @@ using BehaviourTree;
 
 namespace HelloMod
 {
-	public class CustomDecideNetWalktToBlock :  DecideNextWalkToBlockAction
+	public class CustomDecideNextBlockToWalk :  DecideNextWalkToBlockAction
 	{
 		private Person _person;
 
@@ -15,8 +15,10 @@ namespace HelloMod
 		private Block[] possibleProhibitedBlocks = new Block[3];
 
 		private string _outblock;
-		public CustomDecideNetWalktToBlock (string outblock) : base(outblock)
+		private string _reward;
+		public CustomDecideNextBlockToWalk (string outblock,string reward) : base(outblock)
 		{
+			_reward = reward;
 			_outblock = outblock;
 		}
 
@@ -45,40 +47,51 @@ namespace HelloMod
 				lhs.y = 0f;
 				lhs.Normalize();
 			}
-			BlockNeighbour[] connected = this._person.currentBlock.getConnected();
 
-			if (QLearningCache.ConfidenceFactor > .5f && UnityEngine.Random.value < .8f) {
-				float reward = 0.0f;
-				for (int i = 0; i < connected.Length; i++) {
-					if (connected [i] != null) {
-						if (this._person.canWanderOnto (connected [i].block)) {
-							int xb = Mathf.FloorToInt (connected [i].block.transform.transform.position.x);
-							int yb = Mathf.RoundToInt (connected [i].block.transform.transform.position.y);
-							int zb = Mathf.FloorToInt (connected [i].block.transform.transform.position.z);
-							var node = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, xb, yb, zb);
-							if (reward < node.value && node.HasBeenModified == true) {
-								block = connected [i].block;
-								reward = node.value;
+			BlockNeighbour[] connected = this._person.currentBlock.getConnected();
+			/*if (_person is Guest && ((Guest)_person).visitingState == Guest.VisitingState.IN_PARK) {
+	
+				
+				if (UnityEngine.Random.value < .5f) {
+
+					for (int i = 0; i < connected.Length; i++) {
+						if (connected [i] != null) {
+							if (this._person.canWanderOnto (connected [i].block)) {
+						
 							}
 						}
 					}
+
 				}
-				if (block != null) {
-					UnityEngine.Debug.Log ("Decided to step on block because of potential reward:" + reward);
-					dataContext.set (this._outblock, block);
-					return Node.Result.SUCCESS;
-				}
-			}
+			}*/
+
+			float reward = 0.0f;
+			Block QLearningBlock = null;
+
 
 			for (int i = 0; i < connected.Length; i++)
 			{
 				BlockNeighbour blockNeighbour = connected[i];
 				Block block3 = blockNeighbour.block;
 				bool flag = false;
-				if (!this._person.canWanderOnto(block3))
-				{
+				if (!this._person.canWanderOnto (block3)) {
 					flag = true;
+
+
+				} else {
+				
+					int xb = Mathf.FloorToInt (connected[i].block.transform.transform.position.x);
+					int yb = Mathf.RoundToInt (connected[i].block.transform.transform.position.y);
+					int zb = Mathf.FloorToInt (connected[i].block.transform.transform.position.z);
+					var node = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, xb, yb, zb);
+					if ( node.value > reward) {
+						QLearningBlock = connected[i].block;
+						reward = node.value;
+					}
 				}
+
+			
+
 				Vector3 rhs = block3.transform.position - this._person.currentBlock.transform.position;
 				rhs.y = 0f;
 				rhs.Normalize();
@@ -104,7 +117,12 @@ namespace HelloMod
 					{
 						this.possibleNormalBlocks[num] = block3;
 						num++;
+
+
 					}
+
+
+
 				}
 				else
 				{
@@ -122,7 +140,7 @@ namespace HelloMod
 							}
 						}
 					}
-					if (num4 > 0f && UnityEngine.Random.value < num4)
+					if (num4 > 0f && UnityEngine.Random.value < num4 && !(block3 is Exit))
 					{
 						this.possibleInterestingBlocks[num2] = block3;
 						num2++;
@@ -140,11 +158,24 @@ namespace HelloMod
 			}
 			if (num2 > 0) {
 				block = this.possibleInterestingBlocks [UnityEngine.Random.Range (0, num2)];
-			} else if (num > 1) {
-				block = this.possibleNormalBlocks [UnityEngine.Random.Range (0, num)];
-			} else if (num == 1) {
-				block = this.possibleNormalBlocks [0];
+				dataContext.set (this._reward, 1f);
+
+			} else {
+				if (num == 1) {
+					block = this.possibleNormalBlocks [0];
+				}
+				else if (QLearningBlock != null && _person is Guest && ((Guest)_person).visitingState == Guest.VisitingState.IN_PARK && UnityEngine.Random.value <= .6f) {
+					UnityEngine.Debug.Log ("Decided to step on block because of potential reward:" + reward);
+					dataContext.set (this._outblock, QLearningBlock);
+					dataContext.set (this._reward, 0.0f);
+					return Node.Result.SUCCESS;
+				} else {
+					block = this.possibleNormalBlocks [UnityEngine.Random.Range (0, num)];
+
+				}
 			}
+
+
 			if (block == null) {
 				if (this._person.currentBlock != null) {
 					block = this._person.currentBlock;
@@ -153,6 +184,9 @@ namespace HelloMod
 					block = this._person.previousBlock;
 				}
 			}
+				
+	
+
 			
 			dataContext.set(this._outblock, block);
 			return Node.Result.SUCCESS;
