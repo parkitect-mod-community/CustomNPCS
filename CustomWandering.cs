@@ -18,9 +18,11 @@ namespace HelloMod
 			
 			return new Loop(new Node[]
 				{
-					new DecideNextWalkToBlockAction("block"),
-					new TurnBlockIntoWalkToPositionAction("block", "position"),
-					new WalkToPositionAction("position", false),
+                    new RandomPath("path"),
+                    new FollowBlockPathAction("path"),
+					//new DecideNextWalkToBlockAction("block"),
+					//new TurnBlockIntoWalkToPositionAction("block", "position"),
+					//new WalkToPositionAction("position", false),
 					new TriggerLongTermPlanAction()
 				});
 		}
