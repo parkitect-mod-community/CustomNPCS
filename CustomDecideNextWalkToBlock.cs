@@ -1,0 +1,167 @@
+﻿using System;
+using UnityEngine;
+using BehaviourTree;
+
+namespace HelloMod
+{
+	public class CustomDecideNetWalktToBlock :  DecideNextWalkToBlockAction
+	{
+		private Person _person;
+
+		private Block[] possibleNormalBlocks = new Block[3];
+
+		private Block[] possibleInterestingBlocks = new Block[3];
+
+		private Block[] possibleProhibitedBlocks = new Block[3];
+
+		private string _outblock;
+		public CustomDecideNetWalktToBlock (string outblock) : base(outblock)
+		{
+			_outblock = outblock;
+		}
+
+		public override void initialize (BehaviourTree.DataContext dataContext)
+		{
+			this._person = dataContext.person;
+
+			base.initialize (dataContext);
+		}
+
+		protected override Result run (BehaviourTree.DataContext dataContext)
+		{
+			Block block = null;
+			Block block2 = null;
+			if (this._person.currentBlock == null)
+			{
+				return Node.Result.FAILED;
+			}
+			int num = 0;
+			int num2 = 0;
+			int num3 = 0;
+			Vector3 lhs = this._person.transform.forward;
+			if (this._person.previousBlock != null)
+			{
+				lhs = this._person.currentBlock.transform.position - this._person.previousBlock.transform.position;
+				lhs.y = 0f;
+				lhs.Normalize();
+			}
+			BlockNeighbour[] connected = this._person.currentBlock.getConnected();
+
+			if (QLearningCache.ConfidenceFactor > .5f && UnityEngine.Random.value < .8f) {
+				float reward = 0.0f;
+				for (int i = 0; i < connected.Length; i++) {
+					if (connected [i] != null) {
+						if (this._person.canWanderOnto (connected [i].block)) {
+							int xb = Mathf.FloorToInt (connected [i].block.transform.transform.position.x);
+							int yb = Mathf.RoundToInt (connected [i].block.transform.transform.position.y);
+							int zb = Mathf.FloorToInt (connected [i].block.transform.transform.position.z);
+							var node = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, xb, yb, zb);
+							if (reward < node.value && node.HasBeenModified == true) {
+								block = connected [i].block;
+								reward = node.value;
+							}
+						}
+					}
+				}
+				if (block != null) {
+					UnityEngine.Debug.Log ("Decided to step on block because of potential reward:" + reward);
+					dataContext.set (this._outblock, block);
+					return Node.Result.SUCCESS;
+				}
+			}
+
+			for (int i = 0; i < connected.Length; i++)
+			{
+				BlockNeighbour blockNeighbour = connected[i];
+				Block block3 = blockNeighbour.block;
+				bool flag = false;
+				if (!this._person.canWanderOnto(block3))
+				{
+					flag = true;
+				}
+				Vector3 rhs = block3.transform.position - this._person.currentBlock.transform.position;
+				rhs.y = 0f;
+				rhs.Normalize();
+				if (Vector3.Dot(lhs, rhs) < -0.5f)
+				{
+					if (!flag)
+					{
+						block = block3;
+					}
+					else
+					{
+						block2 = block3;
+					}
+				}
+				else if (block3 is Path && this.canStepOntoPathWithoutThinking((Path)block3))
+				{
+					if (flag)
+					{
+						this.possibleProhibitedBlocks[num3] = block3;
+						num3++;
+					}
+					else if (num < 3)
+					{
+						this.possibleNormalBlocks[num] = block3;
+						num++;
+					}
+				}
+				else
+				{
+					float num4 = 0f;
+					PersonBehaviour[] components = this._person.GetComponents<PersonBehaviour>();
+					for (int j = 0; j < components.Length; j++)
+					{
+						PersonBehaviour personBehaviour = components[j];
+						if (personBehaviour is WalkToInterestCalculator)
+						{
+							float num5 = (personBehaviour as WalkToInterestCalculator).calculateInterest(block3, this._person);
+							if (num5 > num4)
+							{
+								num4 = num5;
+							}
+						}
+					}
+					if (num4 > 0f && UnityEngine.Random.value < num4)
+					{
+						this.possibleInterestingBlocks[num2] = block3;
+						num2++;
+					}
+				}
+			}
+
+	
+		
+				
+			if (num <= 0 && num3 > 0 && block == null) {
+				this.possibleNormalBlocks = this.possibleProhibitedBlocks;
+				num = num3;
+				block = block2;
+			}
+			if (num2 > 0) {
+				block = this.possibleInterestingBlocks [UnityEngine.Random.Range (0, num2)];
+			} else if (num > 1) {
+				block = this.possibleNormalBlocks [UnityEngine.Random.Range (0, num)];
+			} else if (num == 1) {
+				block = this.possibleNormalBlocks [0];
+			}
+			if (block == null) {
+				if (this._person.currentBlock != null) {
+					block = this._person.currentBlock;
+
+				} else {
+					block = this._person.previousBlock;
+				}
+			}
+			
+			dataContext.set(this._outblock, block);
+			return Node.Result.SUCCESS;
+		}
+
+		private bool canStepOntoPathWithoutThinking(Path path)
+		{
+			return !(this._person is Guest) || !(path is Queue) || (path as Queue).getStationController() == null || this._person.currentBlock is Queue;
+		}
+	}
+}
+
