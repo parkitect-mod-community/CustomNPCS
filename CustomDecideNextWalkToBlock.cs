@@ -147,7 +147,7 @@ namespace HelloMod
 
 			}  
 			else if (QLearningBlock != null && ((Guest)_person).visitingState == Guest.VisitingState.IN_PARK && UnityEngine.Random.value <= .8f) {
-				//UnityEngine.Debug.Log ("Decided to step on block because of potential reward:" + reward);
+				UnityEngine.Debug.Log ("Decided to step on block because of potential reward:" + reward);
 				dataContext.set (this._reward, 0.0f);
 				block = QLearningBlock;
 
