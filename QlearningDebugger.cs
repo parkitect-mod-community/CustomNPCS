@@ -16,7 +16,7 @@ namespace HelloMod
 				for (int y = 0; y < GameController.Instance.park.ySize; y++) {
 					for (int z = 0; z < GameController.Instance.park.zSize; z++) {
 						if (cache [x, y, z] != null) {
-							UnityEngine.Debug.DrawLine (new UnityEngine.Vector3 ((float)x + .5f,(float) y + .5f, (float)z + .5f), new UnityEngine.Vector3 ((float)x + .5f, (float)y + .5f, (float)z + (.5f * cache [x, y, z].value)));
+							//UnityEngine.Debug.DrawLine (new UnityEngine.Vector3 ((float)x + .5f,(float) y + .5f, (float)z + .5f), new UnityEngine.Vector3 ((float)x + .5f, (float)y + .5f, (float)z + (.5f * cache [x, y, z].value)));
 						}
 					}
 				}

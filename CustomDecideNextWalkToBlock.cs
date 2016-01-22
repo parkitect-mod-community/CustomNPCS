@@ -12,6 +12,8 @@ namespace HelloMod
 
 		private Block[] possibleInterestingBlocks = new Block[3];
 
+		private float[] possibleInterestingBlocksInterestFactor = new float[3];
+
 		private Block[] possibleProhibitedBlocks = new Block[3];
 
 		private string _outblock;
@@ -64,8 +66,6 @@ namespace HelloMod
 
 				} 
 
-			
-
 				Vector3 rhs = block3.transform.position - this._person.currentBlock.transform.position;
 				rhs.y = 0f;
 				rhs.Normalize();
@@ -95,13 +95,13 @@ namespace HelloMod
 						num++;
 					}
 
-					int xb = Mathf.FloorToInt (block3.transform.position.x);
-					int yb = Mathf.RoundToInt (block3.transform.position.y);
-					int zb = Mathf.FloorToInt (block3.transform.position.z);
-					var node = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, xb, yb, zb);
-					if ( node.value > reward) {
+			
+					var current = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (_person.transform.position.x), Mathf.RoundToInt (_person.transform.position.y), Mathf.FloorToInt (_person.transform.position.z));
+					var future = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (block3.transform.position.x), Mathf.RoundToInt (block3.transform.position.y), Mathf.FloorToInt (block3.transform.position.z));
+					float potentialReward = current.getValueBasedOnLocation (future);
+					if ( potentialReward > reward) {
 						QLearningBlock = block3;
-						reward = node.value;
+						reward = potentialReward;
 
 					}
 
@@ -125,6 +125,7 @@ namespace HelloMod
 					if (num4 > 0f && UnityEngine.Random.value < num4 && !(block3 is Exit))
 					{
 						this.possibleInterestingBlocks[num2] = block3;
+						possibleInterestingBlocksInterestFactor [num2] = num4;
 						num2++;
 					}
 				}
@@ -140,11 +141,12 @@ namespace HelloMod
 			}
 
 			if (num2 > 0) {
-				block = this.possibleInterestingBlocks [UnityEngine.Random.Range (0, num2)];
-				dataContext.set (this._reward, 1f);
+				int selectedBlock = UnityEngine.Random.Range (0, num2);
+				block = this.possibleInterestingBlocks [selectedBlock];
+				dataContext.set (this._reward, possibleInterestingBlocksInterestFactor [selectedBlock]);
 
 			}  
-			else if (QLearningBlock != null && ((Guest)_person).visitingState == Guest.VisitingState.IN_PARK && UnityEngine.Random.value <= .6f) {
+			else if (QLearningBlock != null && ((Guest)_person).visitingState == Guest.VisitingState.IN_PARK && UnityEngine.Random.value <= .8f) {
 				//UnityEngine.Debug.Log ("Decided to step on block because of potential reward:" + reward);
 				dataContext.set (this._reward, 0.0f);
 				block = QLearningBlock;
