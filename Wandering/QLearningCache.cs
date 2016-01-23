@@ -108,6 +108,7 @@ namespace ImprovedNPC.Wandering
 
 			public void calculateNewState(NodeState futureState,float reward,bool IsBounce)
 			{
+				reward -= 0.04f;
 				int x_diff = (futureState.X - X);
 				int z_diff = (futureState.Z - Z);
 

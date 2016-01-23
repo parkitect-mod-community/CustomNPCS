@@ -9,6 +9,8 @@
     <AssemblyName>ClassLibrary</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -65,9 +67,9 @@
     <Compile Include="Wandering\CalculateFutureReward.cs" />
     <Compile Include="Wandering\QLearningCache.cs" />
     <Compile Include="Wandering\QlearningDebugger.cs" />
-    <Compile Include="Wandering\WeightedPick.cs" />
     <Compile Include="Wandering\CustomWandering.cs" />
     <Compile Include="Wandering\CustomDecideNextWalkToBlock.cs" />
+    <Compile Include="Wandering\WeightedPick.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>

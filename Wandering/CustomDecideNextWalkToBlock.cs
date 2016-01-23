@@ -80,8 +80,8 @@ namespace ImprovedNPC.Wandering
 					else
 					{
 						block2 = connect_blocks;
-					}
 
+					}
 	
 				}
 				else if (connect_blocks is Path && this.canStepOntoPathWithoutThinking((Path)connect_blocks))
@@ -98,9 +98,8 @@ namespace ImprovedNPC.Wandering
 					}
 
 					var current = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (_person.transform.position.x), Mathf.RoundToInt (_person.transform.position.y), Mathf.FloorToInt (_person.transform.position.z),_person.currentBlock);
-					var future = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, (int)connect_blocks.intPosition.x, (int)connect_blocks.intPosition.y, (int)connect_blocks.intPosition.z,connect_blocks);
+					var future = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, (int)connect_blocks.intPosition.x,(int)connect_blocks.intPosition.y, (int)connect_blocks.intPosition.z,connect_blocks);
 					float potentialReward = current.findMaxUtility (future);
-
 					pick.Add (potentialReward, connect_blocks);
 				}
 				else
@@ -143,12 +142,10 @@ namespace ImprovedNPC.Wandering
 				dataContext.set (this._reward, possibleInterestingBlocksInterestFactor [selectedBlock]);
 
 			}  
-			else if (((Guest)_person).visitingState == Guest.VisitingState.IN_PARK) {
-				//UnityEngine.Debug.Log ("Decided to step on block because of potential reward:" + reward);
-				block = pick.RandomPick();
+			else if (pick.NumberOfPairs() >= 2 && ((Guest)_person).visitingState == Guest.VisitingState.IN_PARK) {
+				//UnityEngine.Debug.Log ("Decided to step on block because of potential reward:" );
+				block = (Block)pick.RandomPick();
 				dataContext.set (this._reward, 0.0f);
-
-
 			}
 			else if (num > 1)
 			{
@@ -163,7 +160,7 @@ namespace ImprovedNPC.Wandering
 
 			if (block == null) {
 				if (this._person.currentBlock != null) {
-					block = this._person.currentBlock;
+					block = _person.currentBlock;
 
 				} else {
 					//when the guest turns around
