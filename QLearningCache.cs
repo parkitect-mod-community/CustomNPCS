@@ -41,34 +41,18 @@ namespace HelloMod
 
 			public float getValueBasedOnLocation(NodeState futureState)
 			{
-				int x_diff = (futureState.X - X);
-				int z_diff = (futureState.Z - Z);
-
+	
 				return findMaxUtility (futureState);
-				/*if (x_diff == 1 && z_diff == 1) {
-					return FRValue;
-				} else if (x_diff == -1 && z_diff == 1) {
-					return FLValue;
-				} else if (x_diff == -1 && z_diff == -1) {
-					return BLValue;
-				} else if (x_diff == 1 && z_diff == -1) {
-					return BRValue;
-				} else if (x_diff == 1) {
-					return RValue;
-				} else if (x_diff == -1) {
-					return LValue;
-				} else if (z_diff == 1) {
-					return FValue;
-				} else if (z_diff == -1) {
-					return BValue;
-				}
-				UnityEngine.Debug.Log ("uh oh");
-				return 0.0f;*/
+
 			}
 
 			public float findMaxUtility(NodeState futureState)
 			{
 				float maxUtility = 0.0f;
+				if (futureState == null) {
+					return 0.0f;
+				}
+
 				if (futureState.FRValue > maxUtility) {
 					maxUtility = futureState.FRValue;
 				}
@@ -97,12 +81,21 @@ namespace HelloMod
 
 			}
 
-			public void calculateNewState(NodeState futureState,float reward)
+			public void calculateNewState(NodeState futureState,float reward,bool IsBounce)
 			{
 				int x_diff = (futureState.X - X);
 				int z_diff = (futureState.Z - Z);
 
-				float maxUtility = findMaxUtility(futureState);
+
+				float maxUtility = 0.0f;
+				if (!IsBounce) {
+					maxUtility = findMaxUtility (futureState);
+				} else {
+					x_diff *= -1;
+					z_diff *= -1;
+				}
+
+
 				if (x_diff == 1 && z_diff == 1) {
 				//	float estimatedReward = futureState.FRValue;
 					FRValue = FRValue + LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - FRValue);

@@ -29,14 +29,21 @@ namespace HelloMod
 			int currentY = Mathf.RoundToInt (_person.transform.position.y);
 			int currentZ = Mathf.FloorToInt (_person.transform.position.z);
 
+			bool bounce = false;
 			var next = dataContext.get<Block> (_block);
+			if (next == null) {
+				next = this._person.previousBlock;
+				bounce = true;
+				dataContext.set(_block, next);
+			}
+
 			int futureX = Mathf.FloorToInt (next.transform.position.x);
 			int futureY = Mathf.RoundToInt (next.transform.position.y);
 			int futureZ = Mathf.FloorToInt (next.transform.position.z);
 
 			var curentNode = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, currentX, currentY, currentZ);
 			var futureNode = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, futureX, futureY, futureZ);
-			curentNode.calculateNewState (futureNode, dataContext.get<float>(_reward));
+			curentNode.calculateNewState (futureNode, dataContext.get<float>(_reward),bounce);
 
 			return Result.SUCCESS;
 		}
