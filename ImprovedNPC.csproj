@@ -61,17 +61,19 @@
   <ItemGroup>
     <Compile Include="HelloBehaviour.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="BehaviorInjector.cs" />
-    <Compile Include="CustomWandering.cs" />
-    <Compile Include="DepthFirstSearch.cs" />
-    <Compile Include="RandomPath.cs" />
-    <Compile Include="QLearningCache.cs" />
-    <Compile Include="QlearningDebugger.cs" />
-    <Compile Include="CustomDecideNextWalkToBlock.cs" />
-    <Compile Include="CalculateFutureReward.cs" />
+    <Compile Include="Wandering\BehaviorInjector.cs" />
+    <Compile Include="Wandering\CalculateFutureReward.cs" />
+    <Compile Include="Wandering\QLearningCache.cs" />
+    <Compile Include="Wandering\QlearningDebugger.cs" />
+    <Compile Include="Wandering\WeightedPick.cs" />
+    <Compile Include="Wandering\CustomWandering.cs" />
+    <Compile Include="Wandering\CustomDecideNextWalkToBlock.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>
     <VisualStudio AllowExistingFolder="true" />
   </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="Wandering\" />
+  </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@ using UnityEngine;
 using BehaviourTree;
 using System.Collections.Generic;
 
-namespace HelloMod
+namespace ImprovedNPC.Wandering
 {
 	public class CustomDecideNextBlockToWalk :  DecideNextWalkToBlockAction
 	{
@@ -54,9 +54,7 @@ namespace HelloMod
 
 			BlockNeighbour[] connected = this._person.currentBlock.getConnected();
 
-			List<float> weights = new List<float> ();
-			List<Block> QLearningBlock = new List<Block>();
-			float max_weight = 0;
+			WeightedPick<Block> pick = new WeightedPick<Block> ();
 
 			for (int i = 0; i < connected.Length; i++)
 			{
@@ -100,14 +98,10 @@ namespace HelloMod
 					}
 
 					var current = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (_person.transform.position.x), Mathf.RoundToInt (_person.transform.position.y), Mathf.FloorToInt (_person.transform.position.z),_person.currentBlock);
-					var future = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (connect_blocks.transform.position.x), Mathf.RoundToInt (connect_blocks.transform.position.y), Mathf.FloorToInt (connect_blocks.transform.position.z),connect_blocks);
+					var future = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, (int)connect_blocks.intPosition.x, (int)connect_blocks.intPosition.y, (int)connect_blocks.intPosition.z,connect_blocks);
 					float potentialReward = current.findMaxUtility (future);
-					max_weight += potentialReward ;
-					weights.Add (max_weight);
-					QLearningBlock.Add (connect_blocks);
 
-
-	
+					pick.Add (potentialReward, connect_blocks);
 				}
 				else
 				{
@@ -149,13 +143,11 @@ namespace HelloMod
 				dataContext.set (this._reward, possibleInterestingBlocksInterestFactor [selectedBlock]);
 
 			}  
-			else if (QLearningBlock != null && ((Guest)_person).visitingState == Guest.VisitingState.IN_PARK && UnityEngine.Random.value <= .6f) {
+			else if (((Guest)_person).visitingState == Guest.VisitingState.IN_PARK) {
 				//UnityEngine.Debug.Log ("Decided to step on block because of potential reward:" + reward);
-
-				int index = weights.BinarySearch (UnityEngine.Random.value * max_weight);
-				block = QLearningBlock [index];
+				block = pick.RandomPick();
 				dataContext.set (this._reward, 0.0f);
-			
+
 
 			}
 			else if (num > 1)

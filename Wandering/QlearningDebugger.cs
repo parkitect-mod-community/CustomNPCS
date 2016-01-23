@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace HelloMod
+namespace ImprovedNPC.Wandering
 {
 	public class QlearningDebugger : MonoBehaviour
 	{

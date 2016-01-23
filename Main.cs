@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
-namespace HelloMod
+using ImprovedNPC.Wandering;
+
+
+namespace ImprovedNPC
 {
     public class Main : IMod
     {

@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace HelloMod
+namespace ImprovedNPC.Wandering
 {
 	public class BehaviorInjector : MonoBehaviour
 	{

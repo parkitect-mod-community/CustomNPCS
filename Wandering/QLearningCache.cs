@@ -1,7 +1,5 @@
-﻿using System;
-using  System.Collections.Generic;
-using System.Linq;
-namespace HelloMod
+﻿using  System.Collections.Generic;
+namespace ImprovedNPC.Wandering
 {
 	public class QLearningCache
 	{

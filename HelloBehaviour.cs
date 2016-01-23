@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using ImprovedNPC.Wandering;
 
-namespace HelloMod
+namespace ImprovedNPC
 {
     class HelloBehaviour : MonoBehaviour
     {

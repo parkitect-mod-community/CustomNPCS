@@ -2,19 +2,16 @@
 using BehaviourTree;
 using UnityEngine;
 
-namespace HelloMod
+namespace ImprovedNPC.Wandering
 {
 	public class CustomWandering : RoamingBehaviour
 	{
-		private Block _currentBlock = null;
-		private Guest _guest;
 		public CustomWandering ()
 		{
 		}
 
 		protected override void Initialize (bool isDeserialized)
 		{
-			_guest = this.GetComponent<Guest> ();
 			base.Initialize (isDeserialized);
 		}
 		protected override BehaviourTree.Node setupTree ()

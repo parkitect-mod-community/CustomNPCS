@@ -2,7 +2,7 @@
 using BehaviourTree;
 using UnityEngine;
 
-namespace HelloMod
+namespace ImprovedNPC.Wandering
 {
 	public class CalculateFutureReward :Node
 	{
