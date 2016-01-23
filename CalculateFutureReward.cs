@@ -41,8 +41,8 @@ namespace HelloMod
 			int futureY = Mathf.RoundToInt (next.transform.position.y);
 			int futureZ = Mathf.FloorToInt (next.transform.position.z);
 
-			var curentNode = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, currentX, currentY, currentZ);
-			var futureNode = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, futureX, futureY, futureZ);
+			var curentNode = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, currentX, currentY, currentZ,_person.currentBlock);
+			var futureNode = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, futureX, futureY, futureZ,next);
 			curentNode.calculateNewState (futureNode, dataContext.get<float>(_reward),bounce);
 
 			return Result.SUCCESS;

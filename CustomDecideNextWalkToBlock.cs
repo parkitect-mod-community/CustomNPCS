@@ -1,11 +1,13 @@
 ﻿using System;
 using UnityEngine;
 using BehaviourTree;
+using System.Collections.Generic;
 
 namespace HelloMod
 {
 	public class CustomDecideNextBlockToWalk :  DecideNextWalkToBlockAction
 	{
+
 		private Person _person;
 
 		private Block[] possibleNormalBlocks = new Block[3];
@@ -51,9 +53,11 @@ namespace HelloMod
 			}
 
 			BlockNeighbour[] connected = this._person.currentBlock.getConnected();
-			float reward = -100.0f;
-			Block QLearningBlock = null;
+			float reward = float.MinValue;
 
+			List<float> weights = new List<float> ();
+			List<Block> QLearningBlock = new List<Block>();
+			float max_weight = 0;
 
 			for (int i = 0; i < connected.Length; i++)
 			{
@@ -62,11 +66,14 @@ namespace HelloMod
 				bool cantWanderOntBlock = false;
 				if (!this._person.canWanderOnto (connect_blocks)) {
 					cantWanderOntBlock = true;
-				} 
+				}
 
 				Vector3 rhs = connect_blocks.transform.position - this._person.currentBlock.transform.position;
 				rhs.y = 0f;
 				rhs.Normalize();
+
+			
+
 				if (Vector3.Dot(lhs, rhs) < -0.5f)
 				{
 					if (!cantWanderOntBlock)
@@ -93,16 +100,16 @@ namespace HelloMod
 						num++;
 					}
 
-			
-					var current = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (_person.transform.position.x), Mathf.RoundToInt (_person.transform.position.y), Mathf.FloorToInt (_person.transform.position.z));
-					var future = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (connect_blocks.transform.position.x), Mathf.RoundToInt (connect_blocks.transform.position.y), Mathf.FloorToInt (connect_blocks.transform.position.z));
-					float potentialReward = current.getValueBasedOnLocation (future);
-					if ( potentialReward > reward) {
-						QLearningBlock = connect_blocks;
-						reward = potentialReward;
+					var current = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (_person.transform.position.x), Mathf.RoundToInt (_person.transform.position.y), Mathf.FloorToInt (_person.transform.position.z),_person.currentBlock);
+					var future = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (connect_blocks.transform.position.x), Mathf.RoundToInt (connect_blocks.transform.position.y), Mathf.FloorToInt (connect_blocks.transform.position.z),connect_blocks);
+					float potentialReward = current.findMaxUtility (future);
+					if (potentialReward > reward) {
+						weights.Add (max_weight += potentialReward);
+						QLearningBlock.Add (connect_blocks);
 
 					}
 
+	
 				}
 				else
 				{
@@ -145,9 +152,12 @@ namespace HelloMod
 
 			}  
 			else if (QLearningBlock != null && ((Guest)_person).visitingState == Guest.VisitingState.IN_PARK && UnityEngine.Random.value <= .6f) {
-				UnityEngine.Debug.Log ("Decided to step on block because of potential reward:" + reward);
+				//UnityEngine.Debug.Log ("Decided to step on block because of potential reward:" + reward);
+
+				int index = weights.BinarySearch (UnityEngine.Random.value * max_weight);
+				block = QLearningBlock [index];
 				dataContext.set (this._reward, 0.0f);
-				block = QLearningBlock;
+			
 
 			}
 			else if (num > 1)
@@ -167,12 +177,8 @@ namespace HelloMod
 
 				} else {
 					//when the guest turns around
-					block = null;
+					block = _person.previousBlock;
 				}
-			}
-
-			if (this._person.previousBlock == block) {
-				block = null;
 			}
 
 			

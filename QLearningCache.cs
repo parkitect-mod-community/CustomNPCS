@@ -1,24 +1,25 @@
 ﻿using System;
 using  System.Collections.Generic;
+using System.Linq;
 namespace HelloMod
 {
 	public class QLearningCache
 	{
 		public class NodeState
 		{
-			private const float LEARNING_RATE = .8f;
-			private const float DISCOUNT_FACTOR = .15f;
+			private const float LEARNING_RATE = .90f;
+			private const float DISCOUNT_FACTOR = .60f;
 
-			public float LValue { get; private set; }
-			public float FLValue { get; private set; }
-			public float BLValue { get; private set; }
+			public float LValue { get; protected set; }
+			public float FLValue { get; protected set; }
+			public float BLValue { get; protected set; }
 
-			public float RValue { get; private set; }
-			public float FRValue {get;private set;}
-			public float BRValue { get; private set; }
+			public float RValue { get; protected set; }
+			public float FRValue {get;protected set;}
+			public float BRValue { get; protected set; }
 
-			public float FValue { get; private set; }
-			public float BValue { get; private set; }
+			public float FValue { get; protected set; }
+			public float BValue { get; protected set; }
 
 			public int X{get;private set;}
 			public int Y {get;private set;}
@@ -26,8 +27,9 @@ namespace HelloMod
 
 			private QLearningCache _cache;
 			private string _cacheName;
-			public NodeState(QLearningCache cache,int x,int y, int z,string cacheName)
+			public NodeState(QLearningCache cache,int x,int y, int z,string cacheName, Block associatedBlock)
 			{
+				
 				_cacheName = cacheName;
 				_cache = cache;
 				LValue = 0;
@@ -37,45 +39,70 @@ namespace HelloMod
 				this.X = x;
 				this.Y = y;
 				this.Z = z;
+			
+				associatedBlock.OnDestroyed += () => {
+					if(_cache.TryGetNode(_cacheName,X-1,Y,Z-1) != null)_cache.TryGetNode(_cacheName,X-1,Y,Z-1) .LValue = 0;
+					if(_cache.TryGetNode(_cacheName,X+1,Y,Z-1) != null)_cache.TryGetNode(_cacheName,X+1,Y,Z-1) .RValue = 0;
+					if(_cache.TryGetNode(_cacheName,X,Y+1,Z-1) != null)_cache.TryGetNode(_cacheName,X,Y+1,Z-1) .FValue = 0;
+					if(_cache.TryGetNode(_cacheName,X,Y-1,Z-1) != null)_cache.TryGetNode(_cacheName,X,Y-1,Z-1) .BValue = 0;
+					if(_cache.TryGetNode(_cacheName,X-1,Y-1,Z-1) != null)_cache.TryGetNode(_cacheName,X-1,Y-1,Z-1).BLValue = 0;
+					if(_cache.TryGetNode(_cacheName,X+1,Y+1,Z-1) != null)_cache.TryGetNode(_cacheName,X+1,Y+1,Z-1).FRValue = 0;
+					if(_cache.TryGetNode(_cacheName,X-1,Y+1,Z-1) != null)_cache.TryGetNode(_cacheName,X-1,Y+1,Z-1).FLValue = 0;
+					if(_cache.TryGetNode(_cacheName,X+1,Y-1,Z-1) != null)_cache.TryGetNode(_cacheName,X+1,Y-1,Z-1).BRValue = 0;
+
+					if(_cache.TryGetNode(_cacheName,X-1,Y,Z) != null)_cache.TryGetNode(_cacheName,X-1,Y,Z).LValue = 0;
+					if(_cache.TryGetNode(_cacheName,X+1,Y,Z) != null)_cache.TryGetNode(_cacheName,X+1,Y,Z).RValue = 0;
+					if(_cache.TryGetNode(_cacheName,X,Y+1,Z) != null)_cache.TryGetNode(_cacheName,X,Y+1,Z).FValue = 0;
+					if(_cache.TryGetNode(_cacheName,X,Y-1,Z) != null)_cache.TryGetNode(_cacheName,X,Y-1,Z).BValue = 0;
+					if(_cache.TryGetNode(_cacheName,X-1,Y-1,Z) != null)_cache.TryGetNode(_cacheName,X-1,Y-1,Z) .BLValue = 0;
+					if(_cache.TryGetNode(_cacheName,X+1,Y+1,Z) != null)_cache.TryGetNode(_cacheName,X+1,Y+1,Z) .FRValue = 0;
+					if(_cache.TryGetNode(_cacheName,X-1,Y+1,Z) != null)_cache.TryGetNode(_cacheName,X-1,Y+1,Z) .FLValue = 0;
+					if(_cache.TryGetNode(_cacheName,X+1,Y-1,Z) != null)_cache.TryGetNode(_cacheName,X+1,Y-1,Z) .BRValue = 0;
+
+					if(_cache.TryGetNode(_cacheName,X-1,Y,Z+1) != null)_cache.TryGetNode(_cacheName,X-1,Y,Z+1) .LValue = 0;
+					if(_cache.TryGetNode(_cacheName,X+1,Y,Z+1) != null)_cache.TryGetNode(_cacheName,X+1,Y,Z+1) .RValue = 0;
+					if(_cache.TryGetNode(_cacheName,X,Y+1,Z+1) != null)_cache.TryGetNode(_cacheName,X,Y+1,Z+1) .FValue = 0;
+					if(_cache.TryGetNode(_cacheName,X,Y-1,Z+1) != null)_cache.TryGetNode(_cacheName,X,Y-1,Z+1) .BValue = 0;
+					if(_cache.TryGetNode(_cacheName,X-1,Y-1,Z+1) != null)_cache.TryGetNode(_cacheName,X-1,Y-1,Z+1).BLValue = 0;
+					if(_cache.TryGetNode(_cacheName,X+1,Y+1,Z+1) != null)_cache.TryGetNode(_cacheName,X+1,Y+1,Z+1).FRValue = 0;
+					if(_cache.TryGetNode(_cacheName,X-1,Y+1,Z+1) != null)_cache.TryGetNode(_cacheName,X-1,Y+1,Z+1).FLValue = 0;
+					if(_cache.TryGetNode(_cacheName,X+1,Y-1,Z+1) != null)_cache.TryGetNode(_cacheName,X+1,Y-1,Z+1).BRValue = 0;
+
+					_cache.deleteNode(_cacheName,X,Y,Z);
+
+				};
 			}
-
-			public float getValueBasedOnLocation(NodeState futureState)
-			{
-	
-				return findMaxUtility (futureState);
-
-			}
-
+				
 			public float findMaxUtility(NodeState futureState)
 			{
-				float maxUtility = 0.0f;
+				float maxUtility = float.MinValue;
 				if (futureState == null) {
 					return 0.0f;
 				}
 
 				if (futureState.FRValue > maxUtility) {
-					maxUtility = futureState.FRValue;
+						maxUtility = futureState.FRValue;	
 				}
 				if (futureState.FLValue > maxUtility) {
-					maxUtility = futureState.FLValue;
+						maxUtility = futureState.FLValue;
 				}
 				if (futureState.BRValue > maxUtility) {
 					maxUtility = futureState.BRValue;
 				}
 				if (futureState.BLValue > maxUtility) {
-					maxUtility = futureState.BLValue;
+						maxUtility = futureState.BLValue;
 				}
 				if (futureState.RValue > maxUtility) {
-					maxUtility = futureState.RValue;
+						maxUtility = futureState.RValue;
 				}
 				if (futureState.LValue > maxUtility) {
-					maxUtility = futureState.LValue;
+						maxUtility = futureState.LValue;
 				}
 				if (futureState.FValue > maxUtility) {
-					maxUtility = futureState.FValue;
+						maxUtility = futureState.FValue;
 				}
 				if (futureState.BValue > maxUtility) {
-					maxUtility = futureState.BValue;
+						maxUtility = futureState.BValue;
 				}
 				return maxUtility;
 
@@ -157,15 +184,28 @@ namespace HelloMod
 			nodes.Add (cacheName, new NodeState[x, y, z]);
 		}
 
-		public NodeState GetNode(string cacheName,int x, int y,int z)
+		public NodeState TryGetNode(string cacheName,int x, int y,int z)
+		{
+			var cache = nodes [cacheName];
+			return cache [x, y, z];
+		}
+
+		public NodeState GetNode(string cacheName,int x, int y,int z,Block associatedBlock)
 		{
 			var cache = nodes [cacheName];
 			if (cache [x, y, z] == null)
-				cache [x, y, z] = new NodeState (this,x,y,z,cacheName);
+				cache [x, y, z] = new NodeState (this,x,y,z,cacheName,associatedBlock);
 
 			return cache [x, y, z];
+		}
+
+		public void deleteNode(string cacheName,int x, int y,int z)
+		{
+			var cache = nodes [cacheName];
+			cache[x, y, z] = null;
 
 		}
+
 
 		public QLearningCache.NodeState[,,] GetAllNodes(string cacheName)
 		{
