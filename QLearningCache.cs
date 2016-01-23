@@ -7,7 +7,7 @@ namespace HelloMod
 		public class NodeState
 		{
 			private const float LEARNING_RATE = .8f;
-			private const float DISCOUNT_FACTOR = .6f;
+			private const float DISCOUNT_FACTOR = .15f;
 
 			public float LValue { get; private set; }
 			public float FLValue { get; private set; }
