@@ -53,7 +53,6 @@ namespace HelloMod
 			}
 
 			BlockNeighbour[] connected = this._person.currentBlock.getConnected();
-			float reward = float.MinValue;
 
 			List<float> weights = new List<float> ();
 			List<Block> QLearningBlock = new List<Block>();
@@ -103,11 +102,10 @@ namespace HelloMod
 					var current = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (_person.transform.position.x), Mathf.RoundToInt (_person.transform.position.y), Mathf.FloorToInt (_person.transform.position.z),_person.currentBlock);
 					var future = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (connect_blocks.transform.position.x), Mathf.RoundToInt (connect_blocks.transform.position.y), Mathf.FloorToInt (connect_blocks.transform.position.z),connect_blocks);
 					float potentialReward = current.findMaxUtility (future);
-					if (potentialReward > reward) {
-						weights.Add (max_weight += potentialReward);
-						QLearningBlock.Add (connect_blocks);
+					max_weight += potentialReward ;
+					weights.Add (max_weight);
+					QLearningBlock.Add (connect_blocks);
 
-					}
 
 	
 				}
