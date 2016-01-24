@@ -1,17 +1,16 @@
 ﻿using  System.Collections.Generic;
+
 namespace ImprovedNPC.Wandering
 {
 	public class QLearningCache
 	{
 		public class NodeState
 		{
-			private const float LEARNING_RATE = .80f;
-			private const float DISCOUNT_FACTOR = .6f;
 
-			public float LValue { get; protected set; }
-			public float RValue { get; protected set; }
-			public float FValue { get; protected set; }
-			public float BValue { get; protected set; }
+			public float LValue { get; set; }
+			public float RValue { get; set; }
+			public float FValue { get; set; }
+			public float BValue { get; set; }
 
 			public int X{get;private set;}
 			public int Y {get;private set;}
@@ -56,24 +55,20 @@ namespace ImprovedNPC.Wandering
 			public float findMaxUtility(NodeState futureState)
 			{
 				float maxUtility = float.MinValue;
-				if (futureState == null) {
-					return 0.0f;
-				}
+		
 
 				int x_diff = (futureState.X - X);
 				int z_diff = (futureState.Z - Z);
-
-		
-				if (futureState.RValue > maxUtility && x_diff != -1) {
-						maxUtility = futureState.RValue;
+				if (futureState.RValue > maxUtility /*&& x_diff != -1*/) {
+					maxUtility = futureState.RValue;
 				}
-				if (futureState.LValue > maxUtility  && x_diff != 1  ) {
+				if (futureState.LValue != 0 && futureState.LValue > maxUtility  /* && x_diff != 1  */) {
 						maxUtility = futureState.LValue;
 				}
-				if (futureState.FValue > maxUtility  && z_diff != -1) {
+				if (futureState.FValue != 0 &&futureState.FValue > maxUtility /*  && z_diff != -1*/) {
 						maxUtility = futureState.FValue;
 				}
-				if (futureState.BValue > maxUtility  && z_diff != 1) {
+				if (futureState.BValue != 0 &&futureState.BValue > maxUtility /*  && z_diff != 1*/) {
 						maxUtility = futureState.BValue;
 				}
 				return maxUtility;
@@ -82,7 +77,7 @@ namespace ImprovedNPC.Wandering
 
 			public void calculateNewState(NodeState futureState,float reward)
 			{
-				reward -= 0.04f;
+				reward += Config.MOVMENT_COST;
 				int x_diff = (futureState.X - X);
 				int z_diff = (futureState.Z - Z);
 
@@ -92,19 +87,19 @@ namespace ImprovedNPC.Wandering
 
 				if (x_diff == 1) {
 					//float estimatedReward = futureState.RValue;
-					RValue += LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - RValue);
+					RValue += Config.LEARNING_RATE * (reward + Config.DISCOUNT_FACTOR * maxUtility - RValue);
 			
 				} else if (x_diff == -1) {
 					//float estimatedReward = futureState.LValue;
-					LValue += LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - LValue);
+					LValue += Config.LEARNING_RATE * (reward + Config.DISCOUNT_FACTOR * maxUtility - LValue);
 			
 				} else if (z_diff == 1) {
 					//float estimatedReward = futureState.FValue;
-					FValue += LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - FValue);
+					FValue += Config.LEARNING_RATE * (reward + Config.DISCOUNT_FACTOR * maxUtility - FValue);
 				
 				} else if (z_diff == -1) {
 					//float estimatedReward = futureState.BValue;
-					BValue += LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - BValue);
+					BValue += Config.LEARNING_RATE * (reward + Config.DISCOUNT_FACTOR * maxUtility - BValue);
 		
 				}
 
@@ -141,11 +136,41 @@ namespace ImprovedNPC.Wandering
 			return cache [x, y, z];
 		}
 
-		public NodeState GetNode(string cacheName,int x, int y,int z,Block associatedBlock)
+		public NodeState GetNode(string cacheName,int x, int y,int z,Block associatedBlock,IPathfindingAgent agent)
 		{
 			var cache = nodes [cacheName];
-			if (cache [x, y, z] == null)
-				cache [x, y, z] = new NodeState (this,x,y,z,cacheName,associatedBlock);
+			if (cache [x, y, z] == null) {	
+				cache [x, y, z] = new NodeState (this, x, y, z, cacheName, associatedBlock);
+				var connected = associatedBlock.getConnected ();
+				for (int i = 0; i < connected.Length; i++)
+				{
+					var connect_blocks = connected [i].block;
+					var node = QLearningCache.Instance.GetNode (cacheName, (int)connect_blocks.intPosition.x,(int)connect_blocks.intPosition.y, (int)connect_blocks.intPosition.z,connect_blocks,agent);
+					if (agent.canUseForPathfinding (connect_blocks)) {
+						int x_diff = (node.X - x);
+						int z_diff = (node.Z - z);
+						if (x_diff == 1) {
+							//float estimatedReward = futureState.RValue;
+							node.RValue = .1f;
+
+						} else if (x_diff == -1) {
+							//float estimatedReward = futureState.LValue;
+							node.LValue = .1f;
+
+						} else if (z_diff == 1) {
+							//float estimatedReward = futureState.FValue;
+							node.FValue = .1f;
+
+						} else if (z_diff == -1) {
+							//float estimatedReward = futureState.BValue;
+							node.BValue = .1f;
+
+						}
+					}
+
+				}
+			}
+
 
 			return cache [x, y, z];
 		}

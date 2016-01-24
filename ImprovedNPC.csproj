@@ -70,6 +70,7 @@
     <Compile Include="Wandering\CustomWandering.cs" />
     <Compile Include="Wandering\CustomDecideNextWalkToBlock.cs" />
     <Compile Include="Wandering\WeightedPick.cs" />
+    <Compile Include="Config.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>

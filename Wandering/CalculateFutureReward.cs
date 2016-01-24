@@ -35,8 +35,8 @@ namespace ImprovedNPC.Wandering
 			int futureY = Mathf.RoundToInt (next.transform.position.y);
 			int futureZ = Mathf.FloorToInt (next.transform.position.z);
 
-			var curentNode = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, currentX, currentY, currentZ,_person.currentBlock);
-			var futureNode = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, futureX, futureY, futureZ,next);
+			var curentNode = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, currentX, currentY, currentZ,_person.currentBlock,_person);
+			var futureNode = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, futureX, futureY, futureZ,next,_person);
 			curentNode.calculateNewState (futureNode, dataContext.get<float>(_reward));
 
 			return Result.SUCCESS;

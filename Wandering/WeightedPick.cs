@@ -18,47 +18,82 @@ namespace ImprovedNPC.Wandering
 			public P Item{get;set;}
 
 		}
-		private float _lastvalue = 0;
+
 		private float _maxNegatve = 0;
 		private float _maxPositive = 0;
-		private List<WeightPair<T>> _items = new List<WeightPair<T>>();
+		private SortedList<float,WeightPair<T>> _items = new SortedList<float, WeightPair<T>>();
+
+		private Random random;
 		public WeightedPick ()
 		{
+			random = new Random ();
 		}
 
 		public int NumberOfPairs()
 		{
 			return _items.Count;
 		}
-		public void Add(float value, T obj)
+		public void Add(float value, T obj,float negativeWeight,float positiveWeight)
 		{
-			if (value < 0) {
-				_maxNegatve += ((Math.Abs(value)+1) * .2f);
-				_items.Add (new WeightPair<T>(obj,-_maxNegatve,value));
+			if (value >= 0) {
+				float exp = (float)Math.Exp (value * positiveWeight);
+				_maxPositive += exp;
+				_items.Add (_maxPositive, new WeightPair<T> (obj, _maxPositive, value));
+	
 			} else {
-				_maxPositive += Math.Abs(value)*4f+1;
-				_lastvalue = value + 1;
-				_items.Add (new WeightPair<T>( obj,_maxPositive,value));
+				float exp = (float)Math.Exp(value* negativeWeight);
+				_maxNegatve += exp;
+				_items.Add (-_maxNegatve, new WeightPair<T> (obj, -_maxPositive, value));
 			}
 
 		}
 
 		public WeightPair<T> RandomPick()
 		{
-			if (NumberOfPairs () == 1) {
-				return _items [0];
-			}
 			
-			float value = (UnityEngine.Random.value * (_maxPositive + _maxNegatve +_lastvalue)) - _maxNegatve;
-			for (int x = 0; x < _items.Count; x++) {
-				if (_items [x].CommunativeWeight < value) {
-					return _items [x];
+			if (NumberOfPairs () == 1) {
+				foreach (KeyValuePair<float,WeightPair<T>> kvp in _items) {
+					return kvp.Value;
+
 				}
 			}
+			float value = (((float)random.NextDouble() * (_maxPositive+_maxNegatve)))-_maxNegatve;
+
+
+			/*UnityEngine.Debug.Log ("------------------------------------------------------");
+			UnityEngine.Debug.Log (value + " max_pos:" + _maxPositive + " last_value:" + _lastvalue + " lowest value:"+ _lowestValue);
+			UnityEngine.Debug.Log ("------------------------------------------------------");
+			for (int x = 0; x < _items.Count; x++) {
+				UnityEngine.Debug.Log (_items [x].CommunativeWeight);
+			}
+			UnityEngine.Debug.Log ("------------------------------------------------------");
+*/
+			UnityEngine.Debug.Log ("------------------------------------------------------");
+			UnityEngine.Debug.Log (value + " max_positive:" + _maxPositive + " max_negative:" + _maxNegatve);
+			foreach (KeyValuePair<float,WeightPair<T>> kvp in _items) {
+				UnityEngine.Debug.Log (kvp.Key);
+				
+			}
+			UnityEngine.Debug.Log ("------------------------------------------------------");
+
+			foreach (KeyValuePair<float,WeightPair<T>> kvp in _items) {
+				if (kvp.Key >= 0) {
+					if (kvp.Key > value) {
+						return kvp.Value;
+					}
+				} else {
+					if (kvp.Key < value) {
+						return kvp.Value;
+					}
+				}
+			}
+
+
 
 			return null;
 
 		}
+			
 	}
 }
 
