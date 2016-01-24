@@ -34,11 +34,7 @@ namespace ImprovedNPC.Wandering
 							// Draw the box label
 							GUI.Box(new Rect(boxPosition.x, boxPosition.y, 300, 20), 
 								" L:" + Math.Truncate( cache [x, y, z].LValue*100) + 
-								", FL:" + Math.Truncate( cache [x, y, z].FLValue*100) + 
-								", BL:" +  Math.Truncate(cache [x, y, z].BLValue*100) + 
 								", R:" +  Math.Truncate(cache [x, y, z].RValue*100) +
-								", FR:" +  Math.Truncate(cache [x, y, z].FRValue*100) + 
-								", BR:" +  Math.Truncate(cache [x, y, z].BRValue*100) + 
 								", F:" +  Math.Truncate(cache [x, y, z].FValue*100) + 
 								", B:" +  Math.Truncate(cache [x, y, z].BValue*100) );
 						}

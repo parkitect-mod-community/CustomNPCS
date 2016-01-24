@@ -5,17 +5,11 @@ namespace ImprovedNPC.Wandering
 	{
 		public class NodeState
 		{
-			private const float LEARNING_RATE = .90f;
-			private const float DISCOUNT_FACTOR = .70f;
+			private const float LEARNING_RATE = .80f;
+			private const float DISCOUNT_FACTOR = .6f;
 
 			public float LValue { get; protected set; }
-			public float FLValue { get; protected set; }
-			public float BLValue { get; protected set; }
-
 			public float RValue { get; protected set; }
-			public float FRValue {get;protected set;}
-			public float BRValue { get; protected set; }
-
 			public float FValue { get; protected set; }
 			public float BValue { get; protected set; }
 
@@ -43,28 +37,16 @@ namespace ImprovedNPC.Wandering
 					if(_cache.TryGetNode(_cacheName,X+1,Y,Z-1) != null)_cache.TryGetNode(_cacheName,X+1,Y,Z-1) .RValue = 0;
 					if(_cache.TryGetNode(_cacheName,X,Y+1,Z-1) != null)_cache.TryGetNode(_cacheName,X,Y+1,Z-1) .FValue = 0;
 					if(_cache.TryGetNode(_cacheName,X,Y-1,Z-1) != null)_cache.TryGetNode(_cacheName,X,Y-1,Z-1) .BValue = 0;
-					if(_cache.TryGetNode(_cacheName,X-1,Y-1,Z-1) != null)_cache.TryGetNode(_cacheName,X-1,Y-1,Z-1).BLValue = 0;
-					if(_cache.TryGetNode(_cacheName,X+1,Y+1,Z-1) != null)_cache.TryGetNode(_cacheName,X+1,Y+1,Z-1).FRValue = 0;
-					if(_cache.TryGetNode(_cacheName,X-1,Y+1,Z-1) != null)_cache.TryGetNode(_cacheName,X-1,Y+1,Z-1).FLValue = 0;
-					if(_cache.TryGetNode(_cacheName,X+1,Y-1,Z-1) != null)_cache.TryGetNode(_cacheName,X+1,Y-1,Z-1).BRValue = 0;
 
 					if(_cache.TryGetNode(_cacheName,X-1,Y,Z) != null)_cache.TryGetNode(_cacheName,X-1,Y,Z).LValue = 0;
 					if(_cache.TryGetNode(_cacheName,X+1,Y,Z) != null)_cache.TryGetNode(_cacheName,X+1,Y,Z).RValue = 0;
 					if(_cache.TryGetNode(_cacheName,X,Y+1,Z) != null)_cache.TryGetNode(_cacheName,X,Y+1,Z).FValue = 0;
 					if(_cache.TryGetNode(_cacheName,X,Y-1,Z) != null)_cache.TryGetNode(_cacheName,X,Y-1,Z).BValue = 0;
-					if(_cache.TryGetNode(_cacheName,X-1,Y-1,Z) != null)_cache.TryGetNode(_cacheName,X-1,Y-1,Z) .BLValue = 0;
-					if(_cache.TryGetNode(_cacheName,X+1,Y+1,Z) != null)_cache.TryGetNode(_cacheName,X+1,Y+1,Z) .FRValue = 0;
-					if(_cache.TryGetNode(_cacheName,X-1,Y+1,Z) != null)_cache.TryGetNode(_cacheName,X-1,Y+1,Z) .FLValue = 0;
-					if(_cache.TryGetNode(_cacheName,X+1,Y-1,Z) != null)_cache.TryGetNode(_cacheName,X+1,Y-1,Z) .BRValue = 0;
 
 					if(_cache.TryGetNode(_cacheName,X-1,Y,Z+1) != null)_cache.TryGetNode(_cacheName,X-1,Y,Z+1) .LValue = 0;
 					if(_cache.TryGetNode(_cacheName,X+1,Y,Z+1) != null)_cache.TryGetNode(_cacheName,X+1,Y,Z+1) .RValue = 0;
 					if(_cache.TryGetNode(_cacheName,X,Y+1,Z+1) != null)_cache.TryGetNode(_cacheName,X,Y+1,Z+1) .FValue = 0;
 					if(_cache.TryGetNode(_cacheName,X,Y-1,Z+1) != null)_cache.TryGetNode(_cacheName,X,Y-1,Z+1) .BValue = 0;
-					if(_cache.TryGetNode(_cacheName,X-1,Y-1,Z+1) != null)_cache.TryGetNode(_cacheName,X-1,Y-1,Z+1).BLValue = 0;
-					if(_cache.TryGetNode(_cacheName,X+1,Y+1,Z+1) != null)_cache.TryGetNode(_cacheName,X+1,Y+1,Z+1).FRValue = 0;
-					if(_cache.TryGetNode(_cacheName,X-1,Y+1,Z+1) != null)_cache.TryGetNode(_cacheName,X-1,Y+1,Z+1).FLValue = 0;
-					if(_cache.TryGetNode(_cacheName,X+1,Y-1,Z+1) != null)_cache.TryGetNode(_cacheName,X+1,Y-1,Z+1).BRValue = 0;
 
 					_cache.deleteNode(_cacheName,X,Y,Z);
 
@@ -77,29 +59,17 @@ namespace ImprovedNPC.Wandering
 				if (futureState == null) {
 					return 0.0f;
 				}
-
-				if (futureState.FRValue > maxUtility) {
-						maxUtility = futureState.FRValue;	
-				}
-				if (futureState.FLValue > maxUtility) {
-						maxUtility = futureState.FLValue;
-				}
-				if (futureState.BRValue > maxUtility) {
-					maxUtility = futureState.BRValue;
-				}
-				if (futureState.BLValue > maxUtility) {
-						maxUtility = futureState.BLValue;
-				}
-				if (futureState.RValue > maxUtility) {
+		
+				if (futureState.RValue > maxUtility ) {
 						maxUtility = futureState.RValue;
 				}
-				if (futureState.LValue > maxUtility) {
+				if (futureState.LValue > maxUtility  ) {
 						maxUtility = futureState.LValue;
 				}
 				if (futureState.FValue > maxUtility) {
 						maxUtility = futureState.FValue;
 				}
-				if (futureState.BValue > maxUtility) {
+				if (futureState.BValue > maxUtility ) {
 						maxUtility = futureState.BValue;
 				}
 				return maxUtility;
@@ -121,38 +91,21 @@ namespace ImprovedNPC.Wandering
 					z_diff *= -1;
 				}
 
-
-				if (x_diff == 1 && z_diff == 1) {
-				//	float estimatedReward = futureState.FRValue;
-					FRValue = FRValue + LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - FRValue);
-				
-				} else if (x_diff == -1 && z_diff == 1) {
-				//	float estimatedReward = futureState.FLValue;
-					FLValue = FLValue + LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - FLValue);
-				
-				} else if (x_diff == -1 && z_diff == -1) {
-					//float estimatedReward = futureState.BLValue;
-					BLValue = BLValue + LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - BLValue);
-				
-				} else if (x_diff == 1 && z_diff == -1) {
-					//float estimatedReward = futureState.BRValue;
-					BRValue = BRValue + LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - BRValue);
-			
-				} else if (x_diff == 1) {
+				if (x_diff == 1) {
 					//float estimatedReward = futureState.RValue;
-					RValue = RValue + LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - RValue);
+					RValue += LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - RValue);
 			
 				} else if (x_diff == -1) {
 					//float estimatedReward = futureState.LValue;
-					LValue = LValue + LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - LValue);
+					LValue += LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - LValue);
 			
 				} else if (z_diff == 1) {
 					//float estimatedReward = futureState.FValue;
-					FValue = FValue + LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - FValue);
+					FValue += LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - FValue);
 				
 				} else if (z_diff == -1) {
 					//float estimatedReward = futureState.BValue;
-					BValue = BValue + LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - BValue);
+					BValue += LEARNING_RATE * (reward + DISCOUNT_FACTOR * maxUtility - BValue);
 		
 				}
 

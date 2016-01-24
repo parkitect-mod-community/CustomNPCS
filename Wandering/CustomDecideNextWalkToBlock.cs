@@ -10,14 +10,6 @@ namespace ImprovedNPC.Wandering
 
 		private Person _person;
 
-		private Block[] possibleNormalBlocks = new Block[3];
-
-		private Block[] possibleInterestingBlocks = new Block[3];
-
-		private float[] possibleInterestingBlocksInterestFactor = new float[3];
-
-		private Block[] possibleProhibitedBlocks = new Block[3];
-
 		private string _outblock;
 		private string _reward;
 		public CustomDecideNextBlockToWalk (string outblock,string reward) : base(outblock)
@@ -35,15 +27,10 @@ namespace ImprovedNPC.Wandering
 
 		protected override Result run (BehaviourTree.DataContext dataContext)
 		{
-			Block block = null;
-			Block block2 = null;
 			if (this._person.currentBlock == null)
 			{
 				return Node.Result.FAILED;
 			}
-			int num = 0;
-			int num2 = 0;
-			int num3 = 0;
 			Vector3 lhs = this._person.transform.forward;
 			if (this._person.previousBlock != null)
 			{
@@ -54,16 +41,16 @@ namespace ImprovedNPC.Wandering
 
 			BlockNeighbour[] connected = this._person.currentBlock.getConnected();
 
-			WeightedPick<Block> pick = new WeightedPick<Block> ();
+			WeightedPick<Block> cantWander = new WeightedPick<Block> ();
+			WeightedPick<Block> canWander = new WeightedPick<Block> ();
+			WeightedPick<Block> interestingBlocks = new WeightedPick<Block> ();
+			Block block = null;
 
 			for (int i = 0; i < connected.Length; i++)
 			{
 				BlockNeighbour blockNeighbour = connected[i];
 				Block connect_blocks = blockNeighbour.block;
-				bool cantWanderOntBlock = false;
-				if (!this._person.canWanderOnto (connect_blocks)) {
-					cantWanderOntBlock = true;
-				}
+				bool canWanderOnto = this._person.canWanderOnto (connect_blocks);
 
 				Vector3 rhs = connect_blocks.transform.position - this._person.currentBlock.transform.position;
 				rhs.y = 0f;
@@ -73,90 +60,66 @@ namespace ImprovedNPC.Wandering
 
 				if (Vector3.Dot(lhs, rhs) < -0.5f)
 				{
-					if (!cantWanderOntBlock)
-					{
-						block = connect_blocks;
-					}
-					else
-					{
-						block2 = connect_blocks;
-
-					}
+					block = connect_blocks;
 	
 				}
 				else if (connect_blocks is Path && this.canStepOntoPathWithoutThinking((Path)connect_blocks))
 				{
-					if (cantWanderOntBlock)
+					if (canWanderOnto)
 					{
-						this.possibleProhibitedBlocks[num3] = connect_blocks;
-						num3++;
+						var current = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (_person.transform.position.x), Mathf.RoundToInt (_person.transform.position.y), Mathf.FloorToInt (_person.transform.position.z),_person.currentBlock);
+						var future = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, (int)connect_blocks.intPosition.x,(int)connect_blocks.intPosition.y, (int)connect_blocks.intPosition.z,connect_blocks);
+						float potentialReward = current.findMaxUtility (future);
+						canWander.Add (potentialReward - 2f, connect_blocks);
 					}
-					else if (num < 3)
+					else 
 					{
-						this.possibleNormalBlocks[num] = connect_blocks;
-						num++;
+
+						var current = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (_person.transform.position.x), Mathf.RoundToInt (_person.transform.position.y), Mathf.FloorToInt (_person.transform.position.z),_person.currentBlock);
+						var future = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, (int)connect_blocks.intPosition.x,(int)connect_blocks.intPosition.y, (int)connect_blocks.intPosition.z,connect_blocks);
+						float potentialReward = current.findMaxUtility (future);
+						cantWander.Add (potentialReward, connect_blocks);
+
 					}
 
-					var current = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (_person.transform.position.x), Mathf.RoundToInt (_person.transform.position.y), Mathf.FloorToInt (_person.transform.position.z),_person.currentBlock);
-					var future = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, (int)connect_blocks.intPosition.x,(int)connect_blocks.intPosition.y, (int)connect_blocks.intPosition.z,connect_blocks);
-					float potentialReward = current.findMaxUtility (future);
-					pick.Add (potentialReward, connect_blocks);
 				}
 				else
 				{
-					float num4 = 0f;
+					float max_interest = 0f;
 					PersonBehaviour[] components = this._person.GetComponents<PersonBehaviour>();
 					for (int j = 0; j < components.Length; j++)
 					{
 						PersonBehaviour personBehaviour = components[j];
 						if (personBehaviour is WalkToInterestCalculator)
 						{
-							float num5 = (personBehaviour as WalkToInterestCalculator).calculateInterest(connect_blocks, this._person);
-							if (num5 > num4)
+							float interest = (personBehaviour as WalkToInterestCalculator).calculateInterest(connect_blocks, this._person);
+							if (interest > max_interest)
 							{
-								num4 = num5;
+								max_interest = interest;
 							}
 						}
 					}
-					if (num4 > 0f && UnityEngine.Random.value < num4 && !(connect_blocks is Exit))
+					if (max_interest > 0f && !(connect_blocks is Exit))
 					{
-						this.possibleInterestingBlocks[num2] = connect_blocks;
-						possibleInterestingBlocksInterestFactor [num2] = num4;
-						num2++;
+						interestingBlocks.Add (max_interest, connect_blocks);
 					}
 				}
 			}
 
 	
 		
-				
-			if (num <= 0 && num3 > 0 && block == null) {
-				this.possibleNormalBlocks = this.possibleProhibitedBlocks;
-				num = num3;
-				block = block2;
-			}
-
-			if (num2 > 0) {
-				int selectedBlock = UnityEngine.Random.Range (0, num2);
-				block = this.possibleInterestingBlocks [selectedBlock];
-				dataContext.set (this._reward, possibleInterestingBlocksInterestFactor [selectedBlock]);
-
-			}  
-			else if (pick.NumberOfPairs() >= 2 && ((Guest)_person).visitingState == Guest.VisitingState.IN_PARK) {
-				//UnityEngine.Debug.Log ("Decided to step on block because of potential reward:" );
-				block = (Block)pick.RandomPick();
+			if (interestingBlocks.NumberOfPairs () >= 1) {
+				var weightPair = interestingBlocks.RandomPick ();
+				block = weightPair.Item;
+				dataContext.set (this._reward, weightPair.Weight);
+			} else if (canWander.NumberOfPairs () >= 1) {
+				block = canWander.RandomPick ().Item;
+				dataContext.set (this._reward, 0.0f);
+			} else if(cantWander.NumberOfPairs() >= 1){
+				block = cantWander.RandomPick ().Item;
 				dataContext.set (this._reward, 0.0f);
 			}
-			else if (num > 1)
-			{
-				block = this.possibleNormalBlocks[UnityEngine.Random.Range(0, num)];
-			}
-			else if (num == 1) {
-				block = this.possibleNormalBlocks [UnityEngine.Random.Range (0, num)];
-
-			}
-				
-
+	
 
 			if (block == null) {
 				if (this._person.currentBlock != null) {
