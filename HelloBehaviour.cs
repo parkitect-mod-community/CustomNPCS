@@ -12,6 +12,14 @@ namespace ImprovedNPC
 		{
 			QLearningCache.Instance.AddCache(GUEST_QLEARNING,GameController.Instance.park.xSize, GameController.Instance.park.ySize, GameController.Instance.park.zSize);
 
+			EventManager.Instance.OnStartPlayingPark += () => {
+				Guest[] guests = UnityEngine.Object.FindObjectsOfType(typeof(Guest)) as Guest[];
+				foreach(Guest g in guests)
+				{
+					g.gameObject.AddComponent<BehaviorInjector> ();
+
+				}
+			};
 
 			/*EventManager.Instance.OnNewThought += (Person person) => {
 				
@@ -72,7 +80,7 @@ namespace ImprovedNPC
 					num /= 4;
 				}
 
-				int num2 = Mathf.Max(1, num - GameController.Instance.park.getGuests().Count);
+				int num2 = Mathf.Max(1, num - GameController.Instance.park.getGuests().Count) /2;
 				float max = 1f / (float)num2 * 60f * 5f;
 				float num3 = Utility.expovariate(max);
 				num3 = Mathf.Clamp(num3, 2f, 90f);
@@ -91,13 +99,6 @@ namespace ImprovedNPC
 			}
 			return null;
 		}
-        void OnGUI()
-        {
-            GUIStyle style = new GUIStyle();
-
-            style.fontSize = 100;
-
-            GUI.Label(new Rect(50, 50, 400, 200), "Hello mods1!", style);
-        }
+       
     }
 }
