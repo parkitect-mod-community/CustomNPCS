@@ -59,17 +59,21 @@ namespace ImprovedNPC.Wandering
 				if (futureState == null) {
 					return 0.0f;
 				}
+
+				int x_diff = (futureState.X - X);
+				int z_diff = (futureState.Z - Z);
+
 		
-				if (futureState.RValue > maxUtility ) {
+				if (futureState.RValue > maxUtility && x_diff != -1) {
 						maxUtility = futureState.RValue;
 				}
-				if (futureState.LValue > maxUtility  ) {
+				if (futureState.LValue > maxUtility  && x_diff != 1  ) {
 						maxUtility = futureState.LValue;
 				}
-				if (futureState.FValue > maxUtility) {
+				if (futureState.FValue > maxUtility  && z_diff != -1) {
 						maxUtility = futureState.FValue;
 				}
-				if (futureState.BValue > maxUtility ) {
+				if (futureState.BValue > maxUtility  && z_diff != 1) {
 						maxUtility = futureState.BValue;
 				}
 				return maxUtility;

@@ -33,10 +33,10 @@ namespace ImprovedNPC.Wandering
 		public void Add(float value, T obj)
 		{
 			if (value < 0) {
-				_maxNegatve += (Math.Abs(value) * .2f)+1;
+				_maxNegatve += ((Math.Abs(value)+1) * .2f);
 				_items.Add (new WeightPair<T>(obj,-_maxNegatve,value));
 			} else {
-				_maxPositive += Math.Abs( value)+1;
+				_maxPositive += Math.Abs(value)*4f+1;
 				_lastvalue = value + 1;
 				_items.Add (new WeightPair<T>( obj,_maxPositive,value));
 			}
