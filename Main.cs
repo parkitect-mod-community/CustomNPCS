@@ -26,12 +26,12 @@ namespace ImprovedNPC
 
         public string Name
         {
-            get { return "Hello Mod"; }
+            get { return "Improved NPCs"; }
         }
 
         public string Description
         {
-            get { return "Validates if mods are working on your PC"; }
+            get { return "This is a modification to the base wandering behavior or npc using QLearning."; }
         }
     }
 }

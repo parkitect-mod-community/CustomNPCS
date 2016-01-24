@@ -76,7 +76,7 @@ namespace ImprovedNPC.Wandering
 
 			}
 
-			public void calculateNewState(NodeState futureState,float reward,bool IsBounce)
+			public void calculateNewState(NodeState futureState,float reward)
 			{
 				reward -= 0.04f;
 				int x_diff = (futureState.X - X);
@@ -84,12 +84,7 @@ namespace ImprovedNPC.Wandering
 
 
 				float maxUtility = 0.0f;
-				if (!IsBounce) {
-					maxUtility = findMaxUtility (futureState);
-				} else {
-					x_diff *= -1;
-					z_diff *= -1;
-				}
+				maxUtility = findMaxUtility (futureState);
 
 				if (x_diff == 1) {
 					//float estimatedReward = futureState.RValue;
