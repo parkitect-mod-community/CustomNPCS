@@ -5,13 +5,16 @@ namespace ImprovedNPC
 	public static class Config
 	{
 
+		public static readonly bool DEBUGGING = false;
+
+
 		//------------------------------------------------------------------------------------- 
 		//LEARNING
 		//-------------------------------------------------------------------------------------
 
 		//don't set the learning rate or discount factor above 1 or the Q values will diverge.
 		public static readonly float LEARNING_RATE = .80f;
-		public static readonly float DISCOUNT_FACTOR = .1f;
+		public static readonly float DISCOUNT_FACTOR = .4f;
 
 
 		//------------------------------------------------------------------------------------- 

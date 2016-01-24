@@ -14,14 +14,18 @@ namespace ImprovedNPC
         {
             _go = new GameObject();
             _go.AddComponent<HelloBehaviour>();
-			_debugger = new GameObject ();
-			_debugger.AddComponent<QlearningDebugger> ();
+			if (Config.DEBUGGING == true) {
+				_debugger = new GameObject ();
+				_debugger.AddComponent<QlearningDebugger> ();
+			}
 		}
 
         public void onDisabled()
         {
             UnityEngine.Object.Destroy(_go);
-			UnityEngine.Object.Destroy(_debugger);
+			if (Config.DEBUGGING == true) {
+				UnityEngine.Object.Destroy (_debugger);
+			}
         }
 
         public string Name
