@@ -5,7 +5,7 @@ namespace ImprovedNPC
 	public static class Config
 	{
 
-		public static readonly bool DEBUGGING = false;
+		public static readonly bool DEBUGGING = true;
 
 
 		//------------------------------------------------------------------------------------- 

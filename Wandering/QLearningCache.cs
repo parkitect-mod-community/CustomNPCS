@@ -59,16 +59,16 @@ namespace ImprovedNPC.Wandering
 				int x_diff = (futureState.X - X);
 				int z_diff = (futureState.Z - Z);
 
-				if (futureState.RValue != 0 && futureState.RValue > maxUtility && x_diff != -1) {
+				if (futureState.RValue != 0 && futureState.RValue > maxUtility ) {
 					maxUtility = futureState.RValue;
 				}
-				if (futureState.LValue != 0 && futureState.LValue > maxUtility   && x_diff != 1  ) {
+				if (futureState.LValue != 0 && futureState.LValue > maxUtility   ) {
 						maxUtility = futureState.LValue;
 				}
-				if (futureState.FValue != 0 &&futureState.FValue > maxUtility   && z_diff != -1) {
+				if (futureState.FValue != 0 &&futureState.FValue > maxUtility   ) {
 						maxUtility = futureState.FValue;
 				}
-				if (futureState.BValue != 0 &&futureState.BValue > maxUtility   && z_diff != 1) {
+				if (futureState.BValue != 0 &&futureState.BValue > maxUtility   ) {
 						maxUtility = futureState.BValue;
 				}
 
@@ -151,39 +151,41 @@ namespace ImprovedNPC.Wandering
 
 		public NodeState GetNode(string cacheName,int x, int y,int z,Block associatedBlock,IPathfindingAgent agent)
 		{
-			var cache = nodes [cacheName];
-			if (cache [x, y, z] == null) {	
-				cache [x, y, z] = new NodeState (this, x, y, z, cacheName, associatedBlock);
+				var cache = nodes [cacheName];
+				if (cache [x, y, z] == null) {	
+					cache [x, y, z] = new NodeState (this, x, y, z, cacheName, associatedBlock);
+
 				var connected = associatedBlock.getConnected ();
 				for (int i = 0; i < connected.Length; i++)
 				{
 					var connect_blocks = connected [i].block;
+					if (agent.canUseForPathfinding (connect_blocks)) {
+						var node = QLearningCache.Instance.GetNode (cacheName, (int)connect_blocks.intPosition.x, (int)connect_blocks.intPosition.y, (int)connect_blocks.intPosition.z, connect_blocks, agent);
 
-					if (!HasNode (cacheName, (int)connect_blocks.intPosition.x, (int)connect_blocks.intPosition.y, (int)connect_blocks.intPosition.z)) {
-						if (agent.canUseForPathfinding (connect_blocks)) {
-							var node = QLearningCache.Instance.GetNode (cacheName, (int)connect_blocks.intPosition.x, (int)connect_blocks.intPosition.y, (int)connect_blocks.intPosition.z, connect_blocks, agent);
+						int x_diff = (node.X - x);
+						int z_diff = (node.Z - z);
+						if (x_diff == 1 ) {
+							//float estimatedReward = futureState.RValue;
+							node.RValue =.01f;
+							cache [x, y, z].LValue = .01f;
 
-							int x_diff = (node.X - x);
-							int z_diff = (node.Z - z);
-							if (x_diff == 1) {
-								//float estimatedReward = futureState.RValue;
-								node.RValue = UnityEngine.Random.value;
+						} else if (x_diff == -1) {
+							//float estimatedReward = futureState.LValue;
+							node.LValue = .01f;
+							cache [x, y, z].RValue = .01f;
+						} else if (z_diff == 1) {
+							//float estimatedReward = futureState.FValue;
+							node.FValue = .01f;
+							cache [x, y, z].BValue = .01f;
 
-							} else if (x_diff == -1) {
-								//float estimatedReward = futureState.LValue;
-								node.LValue = UnityEngine.Random.value;
+						} else if (z_diff == -1) {
+							//float estimatedReward = futureState.BValue;
+							node.BValue = .01f;
+							cache [x, y, z].FValue = .01f;
 
-							} else if (z_diff == 1) {
-								//float estimatedReward = futureState.FValue;
-								node.FValue = UnityEngine.Random.value;
-
-							} else if (z_diff == -1) {
-								//float estimatedReward = futureState.BValue;
-								node.BValue = UnityEngine.Random.value;
-
-							}
 						}
 					}
+
 
 				}
 			}
