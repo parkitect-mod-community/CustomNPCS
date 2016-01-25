@@ -34,11 +34,11 @@ namespace ImprovedNPC
 
 		//the weighted factore used to decide if a NPC will go on a ride. 
 		public static readonly float FINDING_ATTRACTION_POSITIVE_WEIGHT_FACTOR = .1f;
-		public static readonly float FINDING_ATTRACTION_NEGATIVE_WEIGHT_FACTOR = .1f;
+		public static readonly float FINDING_ATTRACTION_NEGATIVE_WEIGHT_FACTOR = 1.4f;
 
 		//the weighted factore used to decide if a NPC move to a tile in a general wandering state.
 		public static readonly float WANDERING_POSITIVE_WEIGHT_FACTOR = .1f;
-		public static readonly float WANDERING_NEGATIVE_WEIGHT_FACTOR = .1f;
+		public static readonly float WANDERING_NEGATIVE_WEIGHT_FACTOR = 1.4f;
 
 
 
