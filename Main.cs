@@ -18,7 +18,8 @@ namespace ImprovedNPC
 				_debugger = new GameObject ();
 				_debugger.AddComponent<QlearningDebugger> ();
 			}
-		}
+
+        }
 
         public void onDisabled()
         {

@@ -8,10 +8,18 @@ namespace ImprovedNPC.Wandering
 	{
 		public CustomWandering ()
 		{
+            
 		}
+
+        public override void serialize (SerializationContext context, System.Collections.Generic.Dictionary<string, object> values)
+        {
+            values ["@type"] = "RoamingBehaviour";
+
+        }
 
 		protected override void Initialize (bool isDeserialized)
 		{
+            
 			base.Initialize (isDeserialized);
 		}
 		protected override BehaviourTree.Node setupTree ()
@@ -20,7 +28,7 @@ namespace ImprovedNPC.Wandering
 			return new Loop(new Node[]
 			{
 				new CustomDecideNextBlockToWalk("block","reward"),
-					new CalculateFutureReward("reward","block"),
+				new CalculateFutureReward("reward","block"),
 				new TurnBlockIntoWalkToPositionAction("block", "position"),
 				new WalkToPositionAction("position", false),
 				new TriggerLongTermPlanAction()
@@ -40,6 +48,7 @@ namespace ImprovedNPC.Wandering
 		{
 			return "custom Wandering";
 		}
+
 	}
 }
 

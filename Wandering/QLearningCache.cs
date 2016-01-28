@@ -126,13 +126,18 @@ namespace ImprovedNPC.Wandering
 		
 		public QLearningCache ()
 		{
+            
 			
 		}
 
+        public void ClearCache()
+        {
+            nodes.Clear ();
+        }
+
 		public void AddCache(string cacheName,int x, int y, int z)
 		{
-	
-			nodes.Add (cacheName, new NodeState[x, y, z]);
+            nodes.Add (cacheName, new NodeState[x, y, z]);
 		}
 
 		public bool HasNode(string cacheName,int x, int y, int z)

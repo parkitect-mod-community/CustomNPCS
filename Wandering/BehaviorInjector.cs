@@ -11,11 +11,9 @@ namespace ImprovedNPC.Wandering
 		private Guest _guest;
 		void Start()
 		{
-			this.ExchangeBehavior<RoamingBehaviour,CustomWandering> ();
-				
-
-		}
-
+			this.ExchangeBehavior<RoamingBehaviour,CustomWandering> ();	
+          
+        }
 
 		public override string ToString ()
 		{
