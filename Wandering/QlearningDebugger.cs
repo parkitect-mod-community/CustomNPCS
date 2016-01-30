@@ -16,7 +16,7 @@ namespace ImprovedNPC.Wandering
 
 		void OnGUI ()
 		{
-			var cache = QLearningCache.Instance.GetAllNodes (HelloBehaviour.GUEST_QLEARNING);
+			var cache = QLearningCache.Instance.GetAllNodes (ImprovedNPC.GUEST_QLEARNING);
 			for (int x = 0; x < GameController.Instance.park.xSize; x++) {
 				for (int y = 0; y < GameController.Instance.park.ySize; y++) {
 					for (int z = 0; z < GameController.Instance.park.zSize; z++) {
@@ -32,11 +32,17 @@ namespace ImprovedNPC.Wandering
 							boxPosition.y -= 100 * 0.5f;
 
 							// Draw the box label
-							GUI.Box(new Rect(boxPosition.x, boxPosition.y, 300, 20), 
-								" L:" + Math.Truncate( cache [x, y, z].LValue*100) + 
-								", R:" +  Math.Truncate(cache [x, y, z].RValue*100) +
-								", F:" +  Math.Truncate(cache [x, y, z].FValue*100) + 
-								", B:" +  Math.Truncate(cache [x, y, z].BValue*100) );
+							string output = "";
+							if(cache [x, y, z].LValue != 0)
+								output += " L:" +  cache[x, y, z].LValue;
+							if(cache [x, y, z].RValue != 0)
+								output += ", R:" + cache [x, y, z].RValue;
+							if(cache [x, y, z].FValue != 0)
+								output += ", F:" + cache [x, y, z].FValue;
+							if(cache [x, y, z].BValue != 0)
+								output += ", B:" + cache [x, y, z].BValue;
+							GUI.TextArea (new Rect (boxPosition.x, boxPosition.y, 300, 20), output);
+						//	GUI.Box(new Rect(boxPosition.x, boxPosition.y, 300, 20), output);
 						}
 					}
 				}

@@ -61,7 +61,6 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HelloBehaviour.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Wandering\BehaviorInjector.cs" />
     <Compile Include="Wandering\CalculateFutureReward.cs" />
@@ -71,6 +70,7 @@
     <Compile Include="Wandering\CustomDecideNextWalkToBlock.cs" />
     <Compile Include="Wandering\WeightedPick.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="ImprovedNPC.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>

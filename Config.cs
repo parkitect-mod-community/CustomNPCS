@@ -13,8 +13,8 @@ namespace ImprovedNPC
 		//-------------------------------------------------------------------------------------
 
 		//don't set the learning rate or discount factor above 1 or the Q values will diverge.
-		public static readonly float LEARNING_RATE = .80f;
-		public static readonly float DISCOUNT_FACTOR = .5f;
+		public static readonly float LEARNING_RATE = .6f;
+		public static readonly float DISCOUNT_FACTOR = .30f;
 
 
 		//------------------------------------------------------------------------------------- 
@@ -22,8 +22,7 @@ namespace ImprovedNPC
 		//-------------------------------------------------------------------------------------
 
 		//the cost to moving to a new tile. 
-		public static readonly float MOVMENT_COST = -.1f;
-		public static readonly float BOUNCE_COST = -.1f;
+		public static readonly float BOUNCE_COST = -.9f;
 
 		//------------------------------------------------------------------------------------- 
 		//PICK FACTORS
@@ -37,8 +36,8 @@ namespace ImprovedNPC
 		public static readonly float FINDING_ATTRACTION_NEGATIVE_WEIGHT_FACTOR = 1.4f;
 
 		//the weighted factore used to decide if a NPC move to a tile in a general wandering state.
-		public static readonly float WANDERING_POSITIVE_WEIGHT_FACTOR = 2f;
-		public static readonly float WANDERING_NEGATIVE_WEIGHT_FACTOR = 7.65f;
+		public static readonly float WANDERING_POSITIVE_WEIGHT_FACTOR = 1f;
+		public static readonly float WANDERING_NEGATIVE_WEIGHT_FACTOR =1f;
 
 
 

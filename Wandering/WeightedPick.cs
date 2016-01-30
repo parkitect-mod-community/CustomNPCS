@@ -38,19 +38,18 @@ namespace ImprovedNPC.Wandering
 			if (value >= 0) {
 				float exp = (float)Math.Exp (value * positiveWeight);
 				_maxPositive += exp;
-				_items.Add ( new WeightPair<T> (obj, _maxPositive, value));
+				_items.Add ( new WeightPair<T> (obj, _maxPositive, exp));
 	
 			} else {
 				float exp = (float)Math.Exp(value* negativeWeight);
 				_maxNegatve += exp;
-				_items.Add ( new WeightPair<T> (obj, -_maxNegatve, value));
+				_items.Add ( new WeightPair<T> (obj, -_maxNegatve, -exp));
 			}
 
 		}
 
 		public WeightPair<T> RandomPick()
 		{
-			
 			if (NumberOfPairs () == 1) {
 				
 				return _items [0];
@@ -58,20 +57,22 @@ namespace ImprovedNPC.Wandering
 			float value = (((float)random.NextDouble() * (_maxPositive+_maxNegatve)))-_maxNegatve;
 
 
-				foreach (var item in _items) 
-				{
-					if (item.CommunativeWeight > 0) {
-						if (item.CommunativeWeight > value) {
-							return item;
-						}
-					} else {
-						if (item.CommunativeWeight < value) {
-							return item;
-						}
+			foreach (var item in _items) 
+			{
+				if (item.CommunativeWeight > 0 && value > 0) {
+					if (value < item.CommunativeWeight ) {
+						return item;
 					}
-
+				} 
+				else if(item.CommunativeWeight < 0 && value < 0)
+				{
+					if (value > item.CommunativeWeight) {
+						return item;
+					}
 				}
-	
+
+			}
+
 
 
 			return null;

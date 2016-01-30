@@ -12,8 +12,10 @@ namespace ImprovedNPC.Wandering
 
 		private string _outblock;
 		private string _reward;
-		public CustomDecideNextBlockToWalk (string outblock,string reward) : base(outblock)
+		private string _bounce;
+		public CustomDecideNextBlockToWalk (string outblock,string reward,string bounce) : base(outblock)
 		{
+			_bounce = bounce;
 			_reward = reward;
 			_outblock = outblock;
 		}
@@ -27,7 +29,7 @@ namespace ImprovedNPC.Wandering
 
 		protected override Result run (BehaviourTree.DataContext dataContext)
 		{
-			if (this._person.currentBlock == null)
+			if (this._person.currentBlock == null || !QLearningCache.Instance.IsCacheAvailable(ImprovedNPC.GUEST_QLEARNING))
 			{
 				return Node.Result.FAILED;
 			}
@@ -44,6 +46,8 @@ namespace ImprovedNPC.Wandering
 			WeightedPick<Block> cantWander = new WeightedPick<Block> ();
 			WeightedPick<Block> canWander = new WeightedPick<Block> ();
 			WeightedPick<Block> interestingBlocks = new WeightedPick<Block> ();
+			bool bounce = true;
+	
 			Block block = null;
 			float reward = 0.0f;
 
@@ -63,23 +67,21 @@ namespace ImprovedNPC.Wandering
 				{
 					block = connect_blocks;
 					reward = Config.BOUNCE_COST;
-
-	
 				}
 				else if (connect_blocks is Path && this.canStepOntoPathWithoutThinking((Path)connect_blocks))
 				{
 					if (canWanderOnto)
 					{
-						var current = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (_person.transform.position.x), Mathf.RoundToInt (_person.transform.position.y), Mathf.FloorToInt (_person.transform.position.z),_person.currentBlock,_person);
-						var future = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, (int)connect_blocks.intPosition.x,(int)connect_blocks.intPosition.y, (int)connect_blocks.intPosition.z,connect_blocks,_person);
+						var current = QLearningCache.Instance.GetNode (ImprovedNPC.GUEST_QLEARNING, Mathf.FloorToInt (_person.transform.position.x), Mathf.RoundToInt (_person.transform.position.y), Mathf.FloorToInt (_person.transform.position.z),_person.currentBlock,_person);
+						var future = QLearningCache.Instance.GetNode (ImprovedNPC.GUEST_QLEARNING, (int)connect_blocks.intPosition.x,(int)connect_blocks.intPosition.y, (int)connect_blocks.intPosition.z,connect_blocks,_person);
 						float potentialReward = current.findMaxUtility (future);
 						canWander.Add (potentialReward , connect_blocks,Config.WANDERING_NEGATIVE_WEIGHT_FACTOR,Config.WANDERING_POSITIVE_WEIGHT_FACTOR);
 					}
 					else 
 					{
 
-						var current = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, Mathf.FloorToInt (_person.transform.position.x), Mathf.RoundToInt (_person.transform.position.y), Mathf.FloorToInt (_person.transform.position.z),_person.currentBlock,_person);
-						var future = QLearningCache.Instance.GetNode (HelloBehaviour.GUEST_QLEARNING, (int)connect_blocks.intPosition.x,(int)connect_blocks.intPosition.y, (int)connect_blocks.intPosition.z,connect_blocks,_person);
+						var current = QLearningCache.Instance.GetNode (ImprovedNPC.GUEST_QLEARNING, Mathf.FloorToInt (_person.transform.position.x), Mathf.RoundToInt (_person.transform.position.y), Mathf.FloorToInt (_person.transform.position.z),_person.currentBlock,_person);
+						var future = QLearningCache.Instance.GetNode (ImprovedNPC.GUEST_QLEARNING, (int)connect_blocks.intPosition.x,(int)connect_blocks.intPosition.y, (int)connect_blocks.intPosition.z,connect_blocks,_person);
 						float potentialReward = current.findMaxUtility (future);
 						cantWander.Add (potentialReward, connect_blocks,Config.WANDERING_NEGATIVE_WEIGHT_FACTOR,Config.WANDERING_POSITIVE_WEIGHT_FACTOR);
 
@@ -115,12 +117,15 @@ namespace ImprovedNPC.Wandering
 				var weightPair = interestingBlocks.RandomPick ();
 				block = weightPair.Item;
 				reward = weightPair.Weight;
+				bounce = false;
 			} else if (canWander.NumberOfPairs () >= 1) {
 				block = canWander.RandomPick ().Item;
 				reward = 0.0f;
+				bounce = false;
 			} else if(cantWander.NumberOfPairs() >= 1){
 				block = cantWander.RandomPick ().Item;
 				reward = 0.0f;
+				bounce = false;
 			}
 	
 
@@ -132,10 +137,9 @@ namespace ImprovedNPC.Wandering
 					//when the guest turns around
 					block = _person.previousBlock;
 					reward = Config.BOUNCE_COST;
-
 				}
 			}
-
+			dataContext.set (this._bounce, bounce);
 			dataContext.set (this._reward, reward);
 			dataContext.set(this._outblock, block);
 			return Node.Result.SUCCESS;

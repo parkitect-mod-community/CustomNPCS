@@ -27,8 +27,8 @@ namespace ImprovedNPC.Wandering
 			
 			return new Loop(new Node[]
 			{
-				new CustomDecideNextBlockToWalk("block","reward"),
-				new CalculateFutureReward("reward","block"),
+				new CustomDecideNextBlockToWalk("block","reward","bounce"),
+					new CalculateFutureReward("reward","block","bounce"),
 				new TurnBlockIntoWalkToPositionAction("block", "position"),
 				new WalkToPositionAction("position", false),
 				new TriggerLongTermPlanAction()

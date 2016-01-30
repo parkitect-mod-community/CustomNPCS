@@ -3,21 +3,19 @@ using ImprovedNPC.Wandering;
 
 namespace ImprovedNPC
 {
-    class HelloBehaviour : MonoBehaviour
+    class ImprovedNPC : MonoBehaviour
     {
-     	public readonly static string GUEST_QLEARNING = "GUEST";
+     	public readonly static string GUEST_QLEARNING = "guest_qmap";
     	void Start()
 		{
-
 			QLearningCache.Instance.AddCache(GUEST_QLEARNING,GameController.Instance.park.xSize, GameController.Instance.park.ySize, GameController.Instance.park.zSize);
-          
+
 			EventManager.Instance.OnStartPlayingPark += () => {
 			    
                 Guest[] guests = UnityEngine.Object.FindObjectsOfType(typeof(Guest)) as Guest[];
 				foreach(Guest g in guests)
 				{
 					g.gameObject.AddComponent<BehaviorInjector> ();
-
 				}
                 
             };
@@ -30,8 +28,7 @@ namespace ImprovedNPC
 
         void OnDestroy()
         {
-            QLearningCache.Instance.ClearCache ();
-        }
+       	}
 
 		void Update()
 		{

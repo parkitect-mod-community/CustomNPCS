@@ -8,12 +8,15 @@ namespace ImprovedNPC
     {
         private GameObject _go;
 		private GameObject _debugger;
-        public string Identifier { get; set; }
+		private GameObject _qLearningCache;
+		public string Identifier { get; set; }
         
         public void onEnabled()
         {
+			_qLearningCache = new GameObject ();
             _go = new GameObject();
-            _go.AddComponent<HelloBehaviour>();
+            _go.AddComponent<ImprovedNPC>();
+			QLearningCache.Instance = _qLearningCache.AddComponent<QLearningCache> ();
 			if (Config.DEBUGGING == true) {
 				_debugger = new GameObject ();
 				_debugger.AddComponent<QlearningDebugger> ();
@@ -24,6 +27,9 @@ namespace ImprovedNPC
         public void onDisabled()
         {
             UnityEngine.Object.Destroy(_go);
+			Object.Destroy (_qLearningCache);
+			QLearningCache.Instance.ClearCache ();
+
 			if (Config.DEBUGGING == true) {
 				UnityEngine.Object.Destroy (_debugger);
 			}
